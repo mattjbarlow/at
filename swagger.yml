@@ -1,0 +1,181 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: At Job Scheduler
+  description: A service that schedules lambda functions to run one time.
+  contact:
+    name: Matt Barlow
+    email: mb@mattjbarlow.com
+    url: https://mattjbarlow.com
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+basePath: /v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /atq:
+    get:
+      description: List all jobs
+      operationId: list_jobs
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: at job response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/at_job'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    post:
+      description: Creates a new at job.
+      operationId: create_job
+      produces:
+        - application/json
+      parameters:
+        - name: at_job
+          in: body
+          description: job to add to the at queue.
+          required: true
+          schema:
+            $ref: '#/definitions/new_at_job'
+      responses:
+        '200':
+          description: at job response
+          schema:
+            $ref: '#/definitions/at_job'
+        '503':
+          description: at job capacity
+          schema:
+            $ref: '#/definitions/errorModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "arn:aws:lambda:us-east-1:769482945897:function:at_command"
+        credentials: "{{ API_GW_IAM_ARN }}"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod"
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+
+  /atq/{id}:
+    get:
+      description: Returns an at job based on ID.
+      operationId: describe_job
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of job to fetch
+          required: true
+          type: string
+      responses:
+        '200':
+          description: at job response
+          schema:
+            $ref: '#/definitions/at_job'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    delete:
+      description: deletes a single at job based on the ID supplied
+      operationId: delete_job
+      parameters:
+        - name: id
+          in: path
+          description: ID of at job to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: at job deleted
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+definitions:
+  at_job:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      lambdaArn:
+        type: string
+      time:
+        type: string
+        format: dateTime
+  new_at_job:
+    type: object
+    required:
+      - lambdaArn
+      - time
+    properties:
+      id:
+        type: string
+      lambdaArn:
+        type: string
+      time:
+        type: string
+        format: dateTime
+  errorModel:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
