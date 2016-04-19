@@ -30,7 +30,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/at_job'
+              $ref: '#/definitions/atJob'
         default:
           description: unexpected error
           schema:
@@ -41,17 +41,17 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: at_job
+        - name: atJob
           in: body
           description: job to add to the at queue.
           required: true
           schema:
-            $ref: '#/definitions/new_at_job'
+            $ref: '#/definitions/newAtJob'
       responses:
         '200':
           description: at job response
           schema:
-            $ref: '#/definitions/at_job'
+            $ref: '#/definitions/atJob'
         '503':
           description: at job capacity
           schema:
@@ -62,8 +62,8 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:lambda:us-east-1:769482945897:function:at_command"
-        credentials: "{{ API_GW_IAM_ARN }}"
+        uri: "arn:aws:apigateway:us-east-1:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at_command/invocations:$LATEST/invocations"
+        credentials: "arn:aws:iam::769482945897:role/apigateway-role"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -121,7 +121,7 @@ paths:
         '200':
           description: at job response
           schema:
-            $ref: '#/definitions/at_job'
+            $ref: '#/definitions/atJob'
         default:
           description: unexpected error
           schema:
@@ -143,7 +143,7 @@ paths:
           schema:
             $ref: '#/definitions/errorModel'
 definitions:
-  at_job:
+  atJob:
     type: object
     required:
       - id
@@ -155,7 +155,7 @@ definitions:
       time:
         type: string
         format: dateTime
-  new_at_job:
+  newAtJob:
     type: object
     required:
       - lambdaArn
