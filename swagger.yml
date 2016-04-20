@@ -39,7 +39,7 @@ paths:
         type: "aws"
         uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
         credentials: "arn:aws:iam::769482945897:role/apigateway-role"
-        httpMethod: "GET"
+        httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
@@ -203,7 +203,6 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
-
   /atq/{id}:
     get:
       description: Returns an at job based on ID.
@@ -229,7 +228,7 @@ paths:
         type: "aws"
         uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
         credentials: "arn:aws:iam::769482945897:role/apigateway-role"
-        httpMethod: "GET"
+        httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
@@ -317,7 +316,7 @@ paths:
         type: "aws"
         uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
         credentials: "arn:aws:iam::769482945897:role/apigateway-role"
-        httpMethod: "DELETE"
+        httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
