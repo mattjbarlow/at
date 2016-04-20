@@ -35,6 +35,79 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
+        credentials: "arn:aws:iam::769482945897:role/apigateway-role"
+        httpMethod: "GET"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod"
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
+
     post:
       description: Creates a new at job.
       operationId: create_job
@@ -51,18 +124,16 @@ paths:
         '200':
           description: at job response
           schema:
-            $ref: '#/definitions/atJob'
-        '503':
-          description: at job capacity
-          schema:
-            $ref: '#/definitions/errorModel'
+            type: array
+            items:
+              $ref: '#/definitions/atJob'
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at_command/invocations:$LATEST/invocations"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
         credentials: "arn:aws:iam::769482945897:role/apigateway-role"
         httpMethod: "POST"
         requestTemplates:
@@ -104,6 +175,34 @@ paths:
                 }
               }
             }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
 
   /atq/{id}:
     get:
@@ -126,6 +225,78 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
+        credentials: "arn:aws:iam::769482945897:role/apigateway-role"
+        httpMethod: "GET"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod"
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
     delete:
       description: deletes a single at job based on the ID supplied
       operationId: delete_job
@@ -142,6 +313,78 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:atcommand/invocations"
+        credentials: "arn:aws:iam::769482945897:role/apigateway-role"
+        httpMethod: "DELETE"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod"
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
 definitions:
   atJob:
     type: object
