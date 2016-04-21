@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0.0'
-  title: "At Job Scheduler"
+  title: "{{ prefix }} At Job Scheduler"
   description: Schedules Lambda jobs to run one time.
 basePath: /v1
 schemes:
@@ -30,8 +30,8 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
+        credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -131,8 +131,8 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
+        credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -230,8 +230,8 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
+        credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -323,8 +323,8 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
+        credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
