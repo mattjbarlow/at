@@ -1,0 +1,9 @@
+---
+prefix: "anon"
+lambda_s3_bucket: "{{prefix}}.bucket.name"
+stack_name: "{{prefix}}-service"
+dynamodb_table_name: "{{prefix}}-dynamo-table"
+api_key_name: "{{prefix}}-api-key"
+api_gw_stage: "dev"
+module_name: "at"
+region: "us-east-1"
