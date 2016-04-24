@@ -1,0 +1,35 @@
+---
+- hosts: 127.0.0.1
+  environment:
+    AWS_SECURITY_TOKEN: "{{ (ansible_env|default({})).AWS_SESSION_TOKEN|default('') }}"
+  connection: local
+
+  # Check for prerequisites
+  tasks:
+  - name: make sure we have java 1.8 installed.
+    shell: "java -version 2>&1 |grep 1.8"
+    register: javatest_result
+    failed_when: "javatest_result.rc != 0"
+  - name: make sure jq is installed
+    shell: "which jq"
+    register: jq_result
+    failed_when: "jq_result.rc != 0"
+  - name: make sure we have connection to AWS.
+    shell: "aws s3 ls"
+    register: aws_result
+    failed_when: "aws_result.rc != 0"
+
+  # Delete Resources
+  - name: Delete S3 Bucket
+    s3: bucket={{lambda_s3_bucket}} mode=delete
+  - name: Delete CloudFormation Stack
+    cloudformation:
+      stack_name: "{{ stack_name }}"
+      state: "absent"
+      region: "{{ region }}"
+      disable_rollback: true
+  - name: Get API Gateway ID
+    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ prefix }} At Job Scheduler")) | .id'
+    register: apigwid
+  - name: Delete API Gateway
+    shell: aws apigateway delete-rest-api --rest-api-id "{{ apigwid.stdout }}"

@@ -40,26 +40,18 @@
     },
     "Conditions": {
         "ApiGatewayDeployed": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "ApiId"}]}]},
-        "DeployLambda": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Key"}]}]},
-        "CreateBucket": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Bucket"}]}]}
+        "DeployLambda": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Key"}]}]}
     },
     "Resources": {
-        "S3LambdaBucket": {
-            "Condition": "CreateBucket",
-            "Type" : "AWS::S3::Bucket",
-            "Properties" : {
-                "BucketName" : {"Ref": "S3Bucket"}
-            }
-        },
         "BackendDynamoDBTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
                 "AttributeDefinitions": [{
-                    "AttributeName": "id",
+                    "AttributeName": "jobid",
                     "AttributeType": "S"
                 }],
                 "KeySchema": [{
-                    "AttributeName": "id",
+                    "AttributeName": "jobid",
                     "KeyType": "HASH"
                 }],
                 "ProvisionedThroughput": {
@@ -94,6 +86,19 @@
                                     "logs:*"
                                 ],
                                 "Resource": "arn:aws:logs:*:*:*"
+                            }]
+                        }
+                    },
+                    {
+                        "PolicyName": "Events",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [{
+                                "Effect": "Allow",
+                                "Action": [
+                                    "events:*"
+                                ],
+                                "Resource": "*"
                             }]
                         }
                     },
@@ -192,8 +197,7 @@
     },
     "Outputs": {
         "S3Bucket": {
-            "Value": {"Ref": "S3Bucket"},
-            "Condition": "CreateBucket"
+            "Value": {"Ref": "S3Bucket"}
         },
         "LambdaArn": {
             "Value": {"Fn::GetAtt": ["Lambda", "Arn"]},

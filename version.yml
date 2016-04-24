@@ -1,0 +1,70 @@
+---
+- hosts: 127.0.0.1
+  environment:
+    AWS_SECURITY_TOKEN: "{{ (ansible_env|default({})).AWS_SESSION_TOKEN|default('') }}"
+  connection: local
+
+  # Check for prerequisites
+  tasks:
+  - name: make sure jq is installed
+    shell: "which jq"
+    register: jq_result
+    failed_when: "jq_result.rc != 0"
+  - name: make sure we have connection to AWS.
+    shell: "aws s3 ls"
+    register: aws_result
+    failed_when: "aws_result.rc != 0"
+
+  # Zip and Upload Lambda Function
+  - name: Create S3 Bucket
+    s3: bucket={{lambda_s3_bucket}} mode=create
+    register: s3bucket
+
+  # !!! From here on out, we assume that if the bucket did not exist, this
+  # is a new deployment. If the bucket did exist, this is an update to
+  # an existing deployment. !!!
+
+  - name: Get API Gateway ID
+    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ prefix }} At Job Scheduler")) | .id'
+    register: apigwid
+
+  - name: Get CloudFormation outputs
+    cloudformation:
+      stack_name: "{{ stack_name }}"
+      state: "present"
+      region: "{{ region }}"
+      disable_rollback: true
+      template: "template.json"
+      template_parameters:
+        S3Bucket: "{{ lambda_s3_bucket }}"
+        S3Key: "{{ s3_key }}"
+        DynamoDBTable: "{{ dynamodb_table_name}}"
+        ApiId: "{{ apigwid.stdout }}"
+    register: stack
+  - name: Set swagger variables from cf output
+    set_fact:
+      LambdaArn: "{{ stack.stack_outputs['LambdaArn'] }}"
+      LambdaName: "{{ stack.stack_outputs['LambdaName'] }}"
+      LambdaRole: "{{ stack.stack_outputs['LambdaRole'] }}"
+      APIGatewayRole: "{{ stack.stack_outputs['APIGatewayRole'] }}"
+
+  - name: Zip Lambda module
+    shell: cp -ar {{ module_name }} .tmp_lambda_dir
+  - shell: pip install -r requirements.txt -t ".tmp_lambda_dir/"
+  - shell: cd ".tmp_lambda_dir/"; zip -r ../{{ s3_key }} *; cd -
+
+  - name: Upload Lambda zip file to S3
+    s3:
+      bucket: "{{lambda_s3_bucket}}"
+      mode: put
+      object: "{{ s3_key }}"
+      src: "{{ s3_key }}"
+      overwrite: different
+
+  - name: Release new version of Lambda code
+    shell: aws lambda update-function-code --function-name {{ LambdaArn }} --s3-bucket {{ lambda_s3_bucket }} --s3-key {{ s3_key }} --publish
+
+  - name: Cleanup temporary files
+    file: path=.tmp_lambda_dir state=absent
+  - file: path=swagger.ansible.yml state=absent
+  - file: path={{ s3_key }} state=absent

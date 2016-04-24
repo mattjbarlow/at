@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0.0'
-  title: "At Job Scheduler"
+  title: "{{ prefix }} At Job Scheduler"
   description: Schedules Lambda jobs to run one time.
 basePath: /v1
 schemes:
@@ -24,20 +24,34 @@ paths:
             type: array
             items:
               $ref: '#/definitions/atJob'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User ID Not Found
+        '500':
+          description: API fault
+        '503':
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
               "parameters": {
                 "gateway": {
+                  "operationId": "list_jobs",
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
                   "resource-path" : "$context.resourcePath",
@@ -105,6 +119,7 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+{% endif %}
 
     post:
       description: Creates a new at job.
@@ -125,20 +140,34 @@ paths:
             type: array
             items:
               $ref: '#/definitions/atJob'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User ID Not Found
+        '500':
+          description: API fault
+        '503':
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
               "parameters": {
                 "gateway": {
+                  "operationId": "create_job",
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
                   "resource-path" : "$context.resourcePath",
@@ -206,6 +235,7 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+{% endif %}
 
   /atq/{id}:
     get:
@@ -224,57 +254,37 @@ paths:
           description: at job response
           schema:
             $ref: '#/definitions/atJob'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User ID Not Found
+        '500':
+          description: API fault
+        '503':
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:dynamodb:action/Query"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
-              "parameters": {
-                "gateway": {
-                  "stage" : "$context.stage",
-                  "request-id" : "$context.requestId",
-                  "resource-path" : "$context.resourcePath",
-                  "http-method" : "$context.httpMethod",
-                  "stage-variables" : {
-                    #foreach($key in $stageVariables.keySet())
-                    "$key" : "$util.escapeJavaScript($stageVariables.get($key))" #if($foreach.hasNext),#end
-                    #end
-                    }
-                },
-                "requestor": {
-                  "source-ip" : "$context.identity.sourceIp",
-                  "user-agent" : "$context.identity.userAgent",
-                  "account-id" : "$context.identity.accountId",
-                  "api-key" : "$context.identity.apiKey",
-                  "caller" : "$context.identity.caller",
-                  "user" : "$context.identity.user",
-                  "user-arn" : "$context.identity.userArn"
-                },
-                "request": {
-                  "headers": {
-                    #foreach($param in $input.params().header.keySet())
-                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
-                    #end
-                  },
-                  "query-params": {
-                    #foreach($param in $input.params().querystring.keySet())
-                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
-                    #end
-                  },
-                  "path-params": {
-                    #foreach($param in $input.params().path.keySet())
-                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
-                    #end
-                  },
-                  "body": $input.json('$')
-                }
+              "TableName": "anon-dynamo-table",
+              "KeyConditionExpression": "jobid = :v1",
+              "ExpressionAttributeValues": {
+                ":v1": {
+                  "S": "$input.params('id')"
+                  }
               }
             }
         responses:
@@ -305,6 +315,16 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+            responseTemplates:
+              application/json: |
+                #set($inputRoot = $input.path('$'))
+                {
+                "jobid": "$inputRoot.Items[0].jobid.S",
+                "lambdaArn": "$inputRoot.Items[0].lambdaArn.S",
+                "time": "$inputRoot.Items[0].time.S"
+                }
+{% endif %}
+
     delete:
       description: deletes a single at job based on the ID supplied
       operationId: delete_job
@@ -317,14 +337,27 @@ paths:
       responses:
         '204':
           description: at job deleted
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User ID Not Found
+        '500':
+          description: API fault
+        '503':
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:769482945897:function:at-service-1-Lambda-1FAPCW9V3B18Z/invocations"
-        credentials: "arn:aws:iam::769482945897:role/at-service-1-APIGatewayRole-ZEGZZ1DC13ZW"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -333,6 +366,7 @@ paths:
                 "gateway": {
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
+                  "operationId": "delete_job",
                   "resource-path" : "$context.resourcePath",
                   "http-method" : "$context.httpMethod",
                   "stage-variables" : {
@@ -397,14 +431,16 @@ paths:
               'application/json':
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
-            statusCode: '200'
+            statusCode: '204'
+{% endif %}
+
 definitions:
   atJob:
     type: object
     required:
-      - id
+      - jobid
     properties:
-      id:
+      jobid:
         type: string
       lambdaArn:
         type: string
@@ -417,7 +453,7 @@ definitions:
       - lambdaArn
       - time
     properties:
-      id:
+      jobid:
         type: string
       lambdaArn:
         type: string
