@@ -18,23 +18,23 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: at job response
           schema:
             type: array
             items:
               $ref: '#/definitions/atJob'
-        '400':
+        400:
           description: Bad Request
-        '401':
+        401:
           description: Unauthorized
-        '403':
+        403:
           description: Forbidden
-        '404':
+        404:
           description: User ID Not Found
-        '500':
+        500:
           description: API fault
-        '503':
+        503:
           description: Service Unavailable
         default:
           description: unexpected error
@@ -134,23 +134,21 @@ paths:
           schema:
             $ref: '#/definitions/newAtJob'
       responses:
-        '200':
+        200:
           description: at job response
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/atJob'
-        '400':
+            $ref: '#/definitions/atJob'
+        400:
           description: Bad Request
-        '401':
+        401:
           description: Unauthorized
-        '403':
+        403:
           description: Forbidden
-        '404':
+        404:
           description: User ID Not Found
-        '500':
+        500:
           description: API fault
-        '503':
+        503:
           description: Service Unavailable
         default:
           description: unexpected error
@@ -250,21 +248,21 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        200:
           description: at job response
           schema:
             $ref: '#/definitions/atJob'
-        '400':
+        400:
           description: Bad Request
-        '401':
+        401:
           description: Unauthorized
-        '403':
+        403:
           description: Forbidden
-        '404':
+        404:
           description: User ID Not Found
-        '500':
+        500:
           description: API fault
-        '503':
+        503:
           description: Service Unavailable
         default:
           description: unexpected error
@@ -335,19 +333,19 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        204:
           description: at job deleted
-        '400':
+        400:
           description: Bad Request
-        '401':
+        401:
           description: Unauthorized
-        '403':
+        403:
           description: Forbidden
-        '404':
+        404:
           description: User ID Not Found
-        '500':
+        500:
           description: API fault
-        '503':
+        503:
           description: Service Unavailable
         default:
           description: unexpected error

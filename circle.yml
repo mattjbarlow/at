@@ -14,6 +14,7 @@ dependencies:
     - pip install awscli
     - pip install ansible
     - pip install boto
+    - pip install -r tests/requirements.txt
     - sudo apt-get install jq
     - wget https://circle-artifacts.com/gh/ryandub/aws-apigateway-importer/2/artifacts/0/home/ubuntu/aws-apigateway-importer/target/aws-apigateway-importer.jar -O ./aws-apigateway-importer.jar
 
@@ -21,6 +22,7 @@ test:
   override:
     - echo "deploying with prefix circle-${CIRCLE_BUILD_NUM}"
     - ansible-playbook -e "prefix=circle-${CIRCLE_BUILD_NUM}" deploy.yml
+    - python tests/infra_test.py
   post:
     - echo "remove api stage"
 
