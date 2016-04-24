@@ -232,7 +232,7 @@ paths:
               'application/json':
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
-            statusCode: 200
+            statusCode: '200'
 {% endif %}
 
   /atq/{id}:
@@ -333,7 +333,7 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        204:
           description: at job deleted
         400:
           description: Bad Request
