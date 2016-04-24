@@ -15,7 +15,7 @@ dependencies:
     - pip install ansible
     - pip install boto
     - sudo apt-get install jq
-    - wget https://circle-artifacts.com/gh/ryandub/aws-apigateway-importer/2/artifacts/0/home/ubuntu/aws-apigateway-importer/target/aws-apigateway-importer.jar -O ./deployment/aws-apigateway-importer.jar
+    - wget https://circle-artifacts.com/gh/ryandub/aws-apigateway-importer/2/artifacts/0/home/ubuntu/aws-apigateway-importer/target/aws-apigateway-importer.jar -O ./aws-apigateway-importer.jar
 
 test:
   override:
