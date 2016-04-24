@@ -136,7 +136,8 @@ paths:
       responses:
         200:
           description: at job response
-          $ref: '#/definitions/atJob'
+          schema:
+            $ref: '#/definitions/atJob'
         400:
           description: Bad Request
         401:
