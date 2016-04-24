@@ -2,3 +2,4 @@
 *.zip
 swagger.awsexport.json
 *.pyc
+*.retry
