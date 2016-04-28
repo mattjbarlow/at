@@ -277,7 +277,7 @@ paths:
         requestTemplates:
           application/json: |
             {
-              "TableName": "anon-dynamo-table",
+              "TableName": "{{ dynamodb_table_name }}",
               "KeyConditionExpression": "jobid = :v1",
               "ExpressionAttributeValues": {
                 ":v1": {
